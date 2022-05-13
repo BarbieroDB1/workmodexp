@@ -47,5 +47,6 @@ jobs:
         id: versions
         with:
           script: |
-            core.info("step result:" + "${{ steps.folders.outputs.result }}")
+            const folders = ${{ steps.folders.outputs.result }}
+            core.info("step result:" + folders)
             
