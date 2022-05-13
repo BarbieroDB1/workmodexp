@@ -42,11 +42,39 @@ jobs:
             const result = [...RELEVANT_PATHS].filter(([_, v]) => v).map(([k, _]) => k);
             core.info("Modules to be released: " + JSON.stringify(result));
             return result;
+      - uses: actions/checkout@v3
+        name: checkout
+        with:
+          # non-shallow, because we want tag information
+          fetch-depth: 0
+      - run: npm install semver
       - uses: actions/github-script@v6
         name: get latest tags for new releases
         id: versions
         with:
           script: |
-            const folders = ${{ steps.folders.outputs.result }}
-            core.info("step result:" + folders)
-            
+            const folders = ${{ steps.folders.outputs.result }} ;
+            //
+            const currentVersions = new Map();
+            for (let module of folders) {
+                const tagcmd = `git tag -l "${module}/*" --sort "-v:refname" | head -n 1`;
+                let resultTag = await exec.exec(tagcmd);
+                if (!resultTag) {
+                    resultTag = `${module}/v0.0.1`;
+                }
+                core.info("found tag " + resultTag)
+                currentVersions.set(module, resultTag);
+            }
+            const semver = require('semver');
+            const newVersions = new Map();
+            for (let [module, tag] of currentVersions) {
+                let cleanVersion = semver.valid(tag.split('/')[1])
+                if (!cleanVersion) {
+                    cleanVersion = "0.0.0"
+                }
+                let incVersion = semver.inc(cleanVersion)
+                newVersions.set(module, `${module}/v${incVersion}`)
+            }
+            const result =[...newVersions.values()]
+            core.info("New tags will be " + result)
+            return result
