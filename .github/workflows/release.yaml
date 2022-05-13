@@ -1,0 +1,43 @@
+name: tag-release
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - client
+      - proto
+      - service
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: check modules to release
+    steps:
+      - uses: actions/github-script@v6
+        name: check if should release
+        id: folders
+        with:
+          result-encoding: json
+          script: |
+            const RELEVANT_PATHS = new Map([['client', false], ['proto', false], ['service', false]])
+            const diff = github.repos.compareCommitsWithBasehead({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                basehead: `${context.payload.before}...${context.payload.after}`
+            });
+            const filesChanged = diff.files.map(f => f.filename)
+            core.info("Files changed since last push: ", filesChanged)
+            for (let [path, _] of RELEVANT_PATHS) {
+                if (filesChanged.some(f => f.startsWith(path + "/"))) {
+                    RELEVANT_PATHS.set(path, true)
+                    break
+                }
+            }
+            const result = [...RELEVANT_PATHS].filter( ([_,v]) => v ).map( ([k,_]) => k)
+            core.info("Modules to be released: ", result)
+            return result
+      - uses: actions/github-script@v6
+        name: get latest tags for new releases
+        id: versions
+        with:
+          script: |
+            console.log(context)
