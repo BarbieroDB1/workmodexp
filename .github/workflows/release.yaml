@@ -7,6 +7,7 @@ on:
       - client
       - proto
       - service
+  workflow_dispatch:
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -18,6 +19,7 @@ jobs:
         with:
           result-encoding: json
           script: |
+            console.log(context)
             const RELEVANT_PATHS = new Map([['client', false], ['proto', false], ['service', false]])
             const diff = github.repos.compareCommitsWithBasehead({
                 owner: context.repo.owner,
