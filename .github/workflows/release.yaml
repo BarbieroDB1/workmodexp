@@ -19,14 +19,14 @@ jobs:
           result-encoding: json
           script: |
             const RELEVANT_PATHS = new Map([
-              ["client", false],
-              ["proto", false],
-              ["service", false],
+                ["client", false],
+                ["proto", false],
+                ["service", false],
             ]);
             const diff = await github.rest.repos.compareCommitsWithBasehead({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              basehead: `${context.payload.before}...${context.payload.after}`,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                basehead: `${context.payload.before}...${context.payload.after}`,
             });
             if (!diff.status || diff.status > 299) {
                 return []
@@ -34,10 +34,10 @@ jobs:
             const filesChanged = diff.data.files.map((f) => f.filename);
             core.info("Files changed since last push: " + JSON.stringify(filesChanged));
             for (let [path, _] of RELEVANT_PATHS) {
-              if (filesChanged.some((f) => f.startsWith(path + "/"))) {
-                RELEVANT_PATHS.set(path, true);
-                break;
-              }
+                if (filesChanged.some((f) => f.startsWith(path + "/"))) {
+                    RELEVANT_PATHS.set(path, true);
+                    break;
+                }
             }
             const result = [...RELEVANT_PATHS].filter(([_, v]) => v).map(([k, _]) => k);
             core.info("Modules to be released: " + JSON.stringify(result));
@@ -53,7 +53,9 @@ jobs:
         id: versions
         with:
           script: |
-            const folders = ${{ steps.folders.outputs.result }} ;
+            const folders = ${{ steps.folders.outputs.result }
+            }
+            ;
             //
             const currentVersions = new Map();
             for (let module of folders) {
@@ -72,9 +74,9 @@ jobs:
                 if (!cleanVersion) {
                     cleanVersion = "0.0.0"
                 }
-                let incVersion = semver.inc(cleanVersion)
+                let incVersion = semver.inc(cleanVersion, 'patch')
                 newVersions.set(module, `${module}/v${incVersion}`)
             }
-            const result =[...newVersions.values()]
+            const result = [...newVersions.values()]
             core.info("New tags will be " + result)
             return result
