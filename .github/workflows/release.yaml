@@ -53,8 +53,7 @@ jobs:
         id: versions
         with:
           script: |
-            const folders = ${{ steps.folders.outputs.result }
-            }
+            const folders = ${{ steps.folders.outputs.result }}
             ;
             //
             const currentVersions = new Map();
