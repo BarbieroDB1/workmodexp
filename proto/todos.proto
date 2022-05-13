@@ -10,6 +10,7 @@ message Todo {
   string task = 2;
   google.protobuf.Timestamp created_at = 3;
   string custom_field = 4;
+  string new_field = 5;
 }
 
 service TodoService {

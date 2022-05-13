@@ -4,9 +4,9 @@ on:
     branches:
       - main
     paths:
-      - client
-      - proto
-      - service
+      - client/*
+      - proto/*
+      - service/*
   workflow_dispatch:
 jobs:
   build:
