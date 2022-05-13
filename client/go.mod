@@ -2,7 +2,9 @@ module github.com/barbierodb1/workmodexp/client
 
 go 1.18
 
-require google.golang.org/grpc v1.46.0
+require (
+	google.golang.org/grpc v1.46.0
+)
 
 require (
 	github.com/golang/protobuf v1.5.2 // indirect

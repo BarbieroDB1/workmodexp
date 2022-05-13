@@ -37,7 +37,6 @@ jobs:
             for (let [path, _] of RELEVANT_PATHS) {
                 if (filesChanged.some((f) => f.startsWith(path + "/"))) {
                     RELEVANT_PATHS.set(path, true);
-                    break;
                 }
             }
             const result = [...RELEVANT_PATHS].filter(([_, v]) => v).map(([k, _]) => k);
