@@ -10,7 +10,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    name: check modules to release
+    name: release changed
     steps:
       - uses: actions/github-script@v6
         name: check if should release
@@ -53,8 +53,7 @@ jobs:
         id: versions
         with:
           script: |
-            const folders = ${{ steps.folders.outputs.result }}
-            ;
+            const folders = ${{ steps.folders.outputs.result }} ;
             //
             const currentVersions = new Map();
             for (let module of folders) {
@@ -79,3 +78,17 @@ jobs:
             const result = [...newVersions.values()]
             core.info("New tags will be " + result)
             return result
+      - uses: fregante/setup-git-user@v1
+      - uses: actions/github-script@v6
+        name: tag versions and push
+        with:
+          script: |
+            const tags = ${{ steps.versions.outputs.result }} ;
+            //
+            let cmds = []
+            for (let tag of tags) {
+                cmds.push(`git tag -a ${tag} -m "${tag}"`)
+            }
+            cmds.push(`git push origin --tags ${process.env.GITHUB_SHA}:${process.env.GITHUB_REF}`)
+            let results = await Promise.all(cmds.map(cmd => exec.exec(cmd)))
+            core.info("tags pushed. Exit codes: " + results)
