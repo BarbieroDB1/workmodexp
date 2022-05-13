@@ -31,7 +31,6 @@ jobs:
             if (!diff.status || diff.status > 299) {
                 return []
             }
-            core.info("diff:" + JSON.stringify(diff))
             const filesChanged = diff.data.files.map((f) => f.filename);
             core.info("Files changed since last push: " + JSON.stringify(filesChanged));
             for (let [path, _] of RELEVANT_PATHS) {
@@ -48,6 +47,5 @@ jobs:
         id: versions
         with:
           script: |
-            core.info("env:" + JSON.stringify(process.env));
-            core.info("step result:" + "${{ steps.set-result.outputs.result }}")
+            core.info("step result:" + "${{ steps.folders.outputs.result }}")
             
