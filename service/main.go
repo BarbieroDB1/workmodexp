@@ -33,10 +33,11 @@ func (t *todoService) Create(ctx context.Context, todo *proto.Todo) (*proto.Todo
 
 	id := uuid.New()
 	newTodo := &proto.Todo{
-		Id:          id.String(),
-		Task:        todo.GetTask(),
-		CreatedAt:   timestamppb.Now(),
-		CustomField: todo.GetCustomField(),
+		Id:           id.String(),
+		Task:         todo.GetTask(),
+		CreatedAt:    timestamppb.Now(),
+		CustomField:  todo.GetCustomField(),
+		AnotherField: todo.GetAnotherField(),
 	}
 	t.todos[id] = newTodo
 

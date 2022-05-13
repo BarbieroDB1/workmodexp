@@ -29,7 +29,11 @@ func runSomething(client proto.TodoServiceClient) {
 	defer cancel()
 	log.Print("running a Create and then a Get")
 
-	todo := &proto.Todo{Task: "This is a task", CustomField: "custom field from v0.0.2"}
+	todo := &proto.Todo{
+		Task:         "This is a task",
+		CustomField:  "custom field from v0.0.2",
+		AnotherField: "another field",
+	}
 	res, err := client.Create(ctx, todo)
 	if err != nil {
 		log.Print("ERR Creating:", err)

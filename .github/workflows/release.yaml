@@ -57,8 +57,10 @@ jobs:
             //
             const currentVersions = new Map();
             for (let module of folders) {
-                const tagcmd = `git tag -l "${module}/*" --sort "-v:refname" | head -n 1`;
-                let resultTag = await exec.exec(tagcmd);
+                let resultTag = await (
+                    exec.getExecOutput("git", ["tag", "-l", `${module}/*`, "--sort", "-v:refname"], {silent: true})
+                        .then(output => output.stdout.split("\n")[0])
+                );
                 if (!resultTag) {
                     resultTag = `${module}/v0.0.1`;
                 }

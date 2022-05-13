@@ -12,6 +12,7 @@ message Todo {
   string custom_field = 4;
   string new_field = 5;
   string another_field = 6;
+  string another_field2 = 7;
 }
 
 service TodoService {
