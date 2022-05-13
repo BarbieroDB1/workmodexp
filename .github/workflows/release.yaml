@@ -19,14 +19,12 @@ jobs:
         with:
           result-encoding: json
           script: |
-            core.info(context);
-            core.info(github);
             const RELEVANT_PATHS = new Map([
               ["client", false],
               ["proto", false],
               ["service", false],
             ]);
-            const diff = github.repos.compareCommitsWithBasehead({
+            const diff = github.rest.repos.compareCommitsWithBasehead({
               owner: context.repo.owner,
               repo: context.repo.repo,
               basehead: `${context.payload.before}...${context.payload.after}`,
@@ -47,4 +45,4 @@ jobs:
         id: versions
         with:
           script: |
-            console.log(context)
+            console.log(JSON.stringify(context))
