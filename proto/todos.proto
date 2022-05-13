@@ -1,0 +1,17 @@
+syntax = "proto3";
+package experiment;
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/barbierodb1/workmodexp/proto";
+
+message Todo {
+  string id = 1;
+  string task = 2;
+  google.protobuf.Timestamp created_at = 3;
+}
+
+service TodoService {
+  rpc Create(Todo) returns (Todo);
+  rpc Get(Todo) returns (Todo);
+}
