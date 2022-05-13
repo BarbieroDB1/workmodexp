@@ -7,7 +7,6 @@ on:
       - client/*
       - proto/*
       - service/*
-  workflow_dispatch:
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -32,9 +31,9 @@ jobs:
             if (!diff.status || diff.status > 299) {
                 return []
             }
-            core.info("diff:", JSON.stringify(diff))
+            core.info("diff:" + JSON.stringify(diff))
             const filesChanged = diff.data.files.map((f) => f.filename);
-            core.info("Files changed since last push: ", filesChanged);
+            core.info("Files changed since last push: " + JSON.stringify(filesChanged));
             for (let [path, _] of RELEVANT_PATHS) {
               if (filesChanged.some((f) => f.startsWith(path + "/"))) {
                 RELEVANT_PATHS.set(path, true);
@@ -42,13 +41,13 @@ jobs:
               }
             }
             const result = [...RELEVANT_PATHS].filter(([_, v]) => v).map(([k, _]) => k);
-            core.info("Modules to be released: ", result);
+            core.info("Modules to be released: " + JSON.stringify(result));
             return result;
       - uses: actions/github-script@v6
         name: get latest tags for new releases
         id: versions
         with:
           script: |
-            core.info("env:", JSON.stringify(process.env));
-            core.info("step result:", ${{ steps.set-result.outputs.result }})
+            core.info("env:" + JSON.stringify(process.env));
+            core.info("step result:" + "${{ steps.set-result.outputs.result }}")
             
