@@ -49,4 +49,6 @@ jobs:
         id: versions
         with:
           script: |
-            console.log(JSON.stringify(context))
+            core.info("env:", JSON.stringify(process.env));
+            core.info("step result:", ${{ steps.set-result.outputs.result }})
+            
