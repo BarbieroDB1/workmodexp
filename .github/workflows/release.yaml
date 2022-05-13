@@ -24,12 +24,16 @@ jobs:
               ["proto", false],
               ["service", false],
             ]);
-            const diff = github.rest.repos.compareCommitsWithBasehead({
+            const diff = await github.rest.repos.compareCommitsWithBasehead({
               owner: context.repo.owner,
               repo: context.repo.repo,
               basehead: `${context.payload.before}...${context.payload.after}`,
             });
-            const filesChanged = diff.files.map((f) => f.filename);
+            if (!diff.status || diff.status > 299) {
+                return []
+            }
+            
+            const filesChanged = diff.data.files.map((f) => f.filename);
             core.info("Files changed since last push: ", filesChanged);
             for (let [path, _] of RELEVANT_PATHS) {
               if (filesChanged.some((f) => f.startsWith(path + "/"))) {
