@@ -9,6 +9,7 @@ on:
       - service/*
 jobs:
   build:
+    permissions: write-all
     runs-on: ubuntu-latest
     name: release changed
     steps:
