@@ -16,7 +16,7 @@ runs:
       run: |
         m=( ${{ inputs.modules }} )
         
-        echo $(jq ${GITHUB_EVENT_PATH})
+        echo $(cat ${GITHUB_EVENT_PATH})
         
         base=$(jq .push.before ${GITHUB_EVENT_PATH})
         head=$(jq .push.after ${GITHUB_EVENT_PATH})
