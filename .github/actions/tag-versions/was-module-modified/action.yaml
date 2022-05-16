@@ -8,6 +8,9 @@ outputs:
   modules:
     description: "list of modules that were modified on this commit separated by space"
     value: ${{ steps.modified_modules.outputs.modules }}
+  stop:
+    description: "if true, job execution can stop here. Returns true when no module was modified."
+    value: ${{ steps.modified_modules.outputs.modified }}
 runs:
   using: composite
   steps:
@@ -16,9 +19,9 @@ runs:
       run: |
         m=( ${{ inputs.modules }} )
         
-        base=$(jq -r .before ${GITHUB_EVENT_PATH})
-        head=$(jq -r .after ${GITHUB_EVENT_PATH})
-        folders=(`git diff --name-only ${base}...${head} | rev | cut -d/ -f2- | rev | sort -u `)
+        #base=$(jq -r .before ${GITHUB_EVENT_PATH})
+        #head=$(jq -r .after ${GITHUB_EVENT_PATH})
+        #folders=(`git diff --name-only ${base}...${head} | rev | cut -d/ -f2- | rev | sort -u `)
         
         modified_modules=()
         for mod in ${m[@]}
@@ -32,3 +35,8 @@ runs:
         done
         
         echo "::set-output name=modules::${modified_modules[@]}"
+        if [[ -z $modified_modules ]]; then
+          echo "::set-output name=modified::${{ toJSON(false) }}"
+        else 
+          echo "::set-output name=modified::${{ toJSON(true) }}"
+        fi
