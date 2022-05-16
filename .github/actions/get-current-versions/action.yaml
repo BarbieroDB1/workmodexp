@@ -20,8 +20,8 @@ runs:
         jsonTag=$(for mod in ${m[@]}; do
             t=`git tag -l "${mod}/*" --sort "-v:refname" | head -n 1`
             echo "${mod}"
-            split=(${t/\// })
-            echo "${split[1]}"
+            split=`echo $t | rev | cut -d/ -f1 | rev`
+            echo "$split"
           done | jq -n -R 'reduce inputs as $mod ({}; . + { ($mod): input })' | jq @json -c)
         
         echo "::set-output name=jsonTag::$jsonTag"
