@@ -20,73 +20,26 @@ jobs:
         with:
           # non-shallow, because we want tag information
           fetch-depth: 0
-      - uses: ./.github/actions/compute-modules
+      - uses: ./.github/actions/tag-versions/compute-modules
         name: get modules
         id: folders
-      - uses: ./.github/actions/was-module-modified
+      - uses: ./.github/actions/tag-versions/was-module-modified
         name: check modified
         id: modified
         with:
           modules: ${{ steps.folders.outputs.modules }}
-      - uses: ./.github/actions/get-current-versions
+      - uses: ./.github/actions/tag-versions/get-current-versions
         name: get current versions
         id: versions
         with:
           modules: ${{ steps.modified.outputs.modules }}
-      - uses: ./.github/actions/upgrade-module-versions
+      - uses: ./.github/actions/tag-versions/upgrade-module-versions
         name: upgrade versions
         id: upg-versions
         with:
           jsonTag: ${{ steps.versions.outputs.jsonTag }}
-      - uses: ./.github/actions/tag-and-push-versions
+      - uses: ./.github/actions/tag-versions/tag-and-push-versions
         name: tag and push versions
         id: tag-n-push
         with:
           jsonTag: ${{ steps.upg-versions.outputs.jsonTag }}
-#      - run: npm install semver
-#      - uses: actions/github-script@v6
-#        name: get latest tags for new releases
-#        id: versions
-#        with:
-#          script: |
-#            const folders = ${{ steps.folders.outputs.modules }} ;
-#            //
-#            const currentVersions = new Map();
-#            for (let module of folders) {
-#                let resultTag = await (
-#                    exec.getExecOutput("git", ["tag", "-l", `${module}/*`, "--sort", "-v:refname"], {silent: true})
-#                        .then(output => output.stdout.split("\n")[0])
-#                );
-#                if (!resultTag) {
-#                    resultTag = `${module}/v0.0.1`;
-#                }
-#                core.info("found tag " + resultTag)
-#                currentVersions.set(module, resultTag);
-#            }
-#            const semver = require('semver');
-#            const newVersions = new Map();
-#            for (let [module, tag] of currentVersions) {
-#                let cleanVersion = semver.valid(tag.split('/')[1])
-#                if (!cleanVersion) {
-#                    cleanVersion = "0.0.0"
-#                }
-#                let incVersion = semver.inc(cleanVersion, 'patch')
-#                newVersions.set(module, `${module}/v${incVersion}`)
-#            }
-#            const result = [...newVersions.values()]
-#            core.info("New tags will be " + result)
-#            return result
-#      - uses: fregante/setup-git-user@v1
-#      - uses: actions/github-script@v6
-#        name: tag versions and push
-#        with:
-#          script: |
-#            const tags = ${{ steps.versions.outputs.result }} ;
-#            //
-#            let cmds = []
-#            for (let tag of tags) {
-#                cmds.push(`git tag -a ${tag} -m "${tag}"`)
-#            }
-#            cmds.push(`git push origin --tags ${process.env.GITHUB_SHA}:${process.env.GITHUB_REF}`)
-#            let results = await Promise.all(cmds.map(cmd => exec.exec(cmd)))
-#            core.info("tags pushed. Exit codes: " + results)
