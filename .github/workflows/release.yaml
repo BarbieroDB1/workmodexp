@@ -13,8 +13,6 @@ jobs:
     runs-on: ubuntu-latest
     name: release changed
     steps:
-      - run: sudo apt-get install jq -y
-        shell: bash
       - uses: actions/checkout@v3
         name: checkout
         with:
