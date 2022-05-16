@@ -33,6 +33,7 @@ func runSomething(client proto.TodoServiceClient) {
 		Task:         "This is a task",
 		CustomField:  "custom field from v0.0.2",
 		AnotherField: "another field",
+		NewField:     "This field isn't that new but ok",
 	}
 	res, err := client.Create(ctx, todo)
 	if err != nil {
