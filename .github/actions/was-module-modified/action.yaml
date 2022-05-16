@@ -18,7 +18,7 @@ runs:
         
         base=$(jq -r .before ${GITHUB_EVENT_PATH})
         head=$(jq -r .after ${GITHUB_EVENT_PATH})
-        folders=(`git diff --name-only ${base}..${head} | awk '{p=index($1,"/"); print substr($1, 0, p-1)}' | sort -u `)
+        folders=(`git diff --name-only ${base}...${head} | awk '{p=index($1,"/"); print substr($1, 0, p-1)}' | sort -u `)
         
         modified_modules=()
         for mod in ${m[@]}
