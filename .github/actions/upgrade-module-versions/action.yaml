@@ -1,0 +1,26 @@
+name: "upgrade version map"
+description: "given a JSON map of modules, upgrade the patch version of each module"
+inputs:
+  jsonTag:
+    description: "version map to upgrade"
+    required: true
+outputs:
+  jsonTag:
+    description: "json map of module => tag"
+    value: ${{ steps.tags.outputs.jsonTag }}
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-node@v3
+      with:
+        cache: 'npm'
+    - shell: bash
+      run: npm install semver
+    - id: tags
+      name: run node script
+      shell: bash
+      run: |
+        jsonTag=${{ inputs.jsonTag }}
+        output=`node "$GITHUB_ACTION_PATH/compute_semver.js" $jsonTag | jq @json -c`
+        
+        echo "::set-output name=jsonTag::$output"

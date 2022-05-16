@@ -1,0 +1,19 @@
+name: "Tag and push Versions"
+description: "given a JSON map of modules, tag the current commit with the new versions"
+inputs:
+  jsonTag:
+    description: "version map to tag"
+    required: true
+runs:
+  using: composite
+  steps:
+    - uses: fregante/setup-git-user@v1
+    - shell: bash
+      name: tag & push
+      run: |
+        jsonTag=${{ inputs.jsonTag }}
+        tags=(`echo $jsonTag | jq -r ' to_entries | .[] | .key + "/" + .value'`)
+        for tag in ${tags[@]}; do
+          git tag -a ${tag} -m "${tag}"
+        done
+        git push origin --tags "${GITHUB_SHA}":"${GITHUB_REF}"

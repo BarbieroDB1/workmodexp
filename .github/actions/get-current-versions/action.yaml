@@ -1,0 +1,27 @@
+name: "get latest tag"
+description: "given a list of modules, get the latest tag for each module"
+inputs:
+  modules:
+    description: "list of modules to verify"
+    required: true
+outputs:
+  jsonTag:
+    description: "json map of module => tag"
+    value: ${{ steps.tags.outputs.jsonTag }}
+runs:
+  using: composite
+  steps:
+    - id: tags
+      shell: bash
+      run: |
+        m=( ${{ inputs.modules }} )
+        
+        declare -A tags
+        jsonTag=$(for mod in ${m[@]}; do
+            t=`git tag -l "${mod}/*" --sort "-v:refname" | head -n 1`
+            echo "${mod}"
+            split=(${t/\// })
+            echo "${split[1]}"
+          done | jq -n -R 'reduce inputs as $mod ({}; . + { ($mod): input })' | jq @json -c)
+        
+        echo "::set-output name=jsonTag::$jsonTag"

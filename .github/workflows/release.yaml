@@ -9,88 +9,84 @@ on:
       - service/*
 jobs:
   build:
-    permissions: write-all
+    permissions: read-all
     runs-on: ubuntu-latest
     name: release changed
     steps:
-      - uses: actions/github-script@v6
-        name: check if should release
-        id: folders
-        with:
-          result-encoding: json
-          script: |
-            const RELEVANT_PATHS = new Map([
-                ["client", false],
-                ["proto", false],
-                ["service", false],
-            ]);
-            const diff = await github.rest.repos.compareCommitsWithBasehead({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                basehead: `${context.payload.before}...${context.payload.after}`,
-            });
-            if (!diff.status || diff.status > 299) {
-                return []
-            }
-            const filesChanged = diff.data.files.map((f) => f.filename);
-            core.info("Files changed since last push: " + JSON.stringify(filesChanged));
-            for (let [path, _] of RELEVANT_PATHS) {
-                if (filesChanged.some((f) => f.startsWith(path + "/"))) {
-                    RELEVANT_PATHS.set(path, true);
-                }
-            }
-            const result = [...RELEVANT_PATHS].filter(([_, v]) => v).map(([k, _]) => k);
-            core.info("Modules to be released: " + JSON.stringify(result));
-            return result;
+      - run: sudo apt-get install jq -y
+        shell: bash
       - uses: actions/checkout@v3
         name: checkout
         with:
           # non-shallow, because we want tag information
           fetch-depth: 0
-      - run: npm install semver
-      - uses: actions/github-script@v6
-        name: get latest tags for new releases
+      - uses: ./.github/actions/compute-modules
+        name: get modules
+        id: folders
+      - uses: ./.github/actions/was-module-modified
+        name: check modified
+        id: modified
+        with:
+          modules: ${{ steps.folders.outputs.modules }}
+      - uses: ./.github/actions/get-current-versions
+        name: get current versions
         id: versions
         with:
-          script: |
-            const folders = ${{ steps.folders.outputs.result }} ;
-            //
-            const currentVersions = new Map();
-            for (let module of folders) {
-                let resultTag = await (
-                    exec.getExecOutput("git", ["tag", "-l", `${module}/*`, "--sort", "-v:refname"], {silent: true})
-                        .then(output => output.stdout.split("\n")[0])
-                );
-                if (!resultTag) {
-                    resultTag = `${module}/v0.0.1`;
-                }
-                core.info("found tag " + resultTag)
-                currentVersions.set(module, resultTag);
-            }
-            const semver = require('semver');
-            const newVersions = new Map();
-            for (let [module, tag] of currentVersions) {
-                let cleanVersion = semver.valid(tag.split('/')[1])
-                if (!cleanVersion) {
-                    cleanVersion = "0.0.0"
-                }
-                let incVersion = semver.inc(cleanVersion, 'patch')
-                newVersions.set(module, `${module}/v${incVersion}`)
-            }
-            const result = [...newVersions.values()]
-            core.info("New tags will be " + result)
-            return result
-      - uses: fregante/setup-git-user@v1
-      - uses: actions/github-script@v6
-        name: tag versions and push
+          modules: ${{ steps.modified.outputs.modules }}
+      - uses: ./.github/actions/upgrade-module-versions
+        name: upgrade versions
+        id: upg-versions
         with:
-          script: |
-            const tags = ${{ steps.versions.outputs.result }} ;
-            //
-            let cmds = []
-            for (let tag of tags) {
-                cmds.push(`git tag -a ${tag} -m "${tag}"`)
-            }
-            cmds.push(`git push origin --tags ${process.env.GITHUB_SHA}:${process.env.GITHUB_REF}`)
-            let results = await Promise.all(cmds.map(cmd => exec.exec(cmd)))
-            core.info("tags pushed. Exit codes: " + results)
+          jsonTag: ${{ steps.versions.outputs.jsonTag }}
+      - uses: ./.github/actions/tag-and-push-versions
+        name: tag and push versions
+        id: tag-n-push
+        with:
+          jsonTag: ${{ steps.upg-versions.outputs.jsonTag }}
+#      - run: npm install semver
+#      - uses: actions/github-script@v6
+#        name: get latest tags for new releases
+#        id: versions
+#        with:
+#          script: |
+#            const folders = ${{ steps.folders.outputs.modules }} ;
+#            //
+#            const currentVersions = new Map();
+#            for (let module of folders) {
+#                let resultTag = await (
+#                    exec.getExecOutput("git", ["tag", "-l", `${module}/*`, "--sort", "-v:refname"], {silent: true})
+#                        .then(output => output.stdout.split("\n")[0])
+#                );
+#                if (!resultTag) {
+#                    resultTag = `${module}/v0.0.1`;
+#                }
+#                core.info("found tag " + resultTag)
+#                currentVersions.set(module, resultTag);
+#            }
+#            const semver = require('semver');
+#            const newVersions = new Map();
+#            for (let [module, tag] of currentVersions) {
+#                let cleanVersion = semver.valid(tag.split('/')[1])
+#                if (!cleanVersion) {
+#                    cleanVersion = "0.0.0"
+#                }
+#                let incVersion = semver.inc(cleanVersion, 'patch')
+#                newVersions.set(module, `${module}/v${incVersion}`)
+#            }
+#            const result = [...newVersions.values()]
+#            core.info("New tags will be " + result)
+#            return result
+#      - uses: fregante/setup-git-user@v1
+#      - uses: actions/github-script@v6
+#        name: tag versions and push
+#        with:
+#          script: |
+#            const tags = ${{ steps.versions.outputs.result }} ;
+#            //
+#            let cmds = []
+#            for (let tag of tags) {
+#                cmds.push(`git tag -a ${tag} -m "${tag}"`)
+#            }
+#            cmds.push(`git push origin --tags ${process.env.GITHUB_SHA}:${process.env.GITHUB_REF}`)
+#            let results = await Promise.all(cmds.map(cmd => exec.exec(cmd)))
+#            core.info("tags pushed. Exit codes: " + results)

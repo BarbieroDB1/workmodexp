@@ -1,0 +1,17 @@
+name: 'Go work modules'
+description: 'Computes go workspace modules and return them as a list'
+outputs:
+  modules:
+    description: 'List of modules separates by comma'
+    value: ${{ steps.get_work_dirs.outputs.modules }}
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-go@v3
+      with:
+        go-version: '1.18'
+    - id: get_work_dirs
+      shell: bash
+      run: |
+        dirs=(`go work edit -json | jq -r '.Use[].DiskPath' | tr -d "./" `)
+        echo "::set-output name=modules::${dirs[@]}"
