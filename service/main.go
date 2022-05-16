@@ -38,6 +38,7 @@ func (t *todoService) Create(ctx context.Context, todo *proto.Todo) (*proto.Todo
 		CreatedAt:    timestamppb.Now(),
 		CustomField:  todo.GetCustomField(),
 		AnotherField: todo.GetAnotherField(),
+		NewField:     todo.GetNewField(),
 	}
 	t.todos[id] = newTodo
 
