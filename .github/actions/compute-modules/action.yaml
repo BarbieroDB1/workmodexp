@@ -13,5 +13,5 @@ runs:
     - id: get_work_dirs
       shell: bash
       run: |
-        dirs=(`go work edit -json | jq -r '.Use[].DiskPath' | tr -d "./" `)
+        dirs=(`go work edit -json | jq -r '.Use[].DiskPath' |  sed "s;./;;" `)
         echo "::set-output name=modules::${dirs[@]}"
