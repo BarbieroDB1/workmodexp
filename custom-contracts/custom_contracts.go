@@ -1,12 +1,17 @@
 package customcontracts
 
-import "github.com/google/uuid"
+import (
+	"time"
+
+	"github.com/google/uuid"
+)
 
 type CustomContracts struct {
-	Name string
-	id   uuid.UUID
+	Name      string
+	ID        uuid.UUID
+	CreatedAt time.Time
 }
 
 func NewCustomContracts(name string) CustomContracts {
-	return CustomContracts{Name: name}
+	return CustomContracts{Name: name, ID: uuid.New(), CreatedAt: time.Now()}
 }
