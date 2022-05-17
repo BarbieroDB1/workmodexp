@@ -8,7 +8,7 @@ outputs:
   modules:
     description: "list of modules that were modified on this commit separated by space"
     value: ${{ steps.modified_modules.outputs.modules }}
-  stop:
+  modified:
     description: "if true, job execution can stop here. Returns true when no module was modified."
     value: ${{ steps.modified_modules.outputs.modified }}
 runs:
@@ -35,8 +35,8 @@ runs:
         done
         
         echo "::set-output name=modules::${modified_modules[@]}"
-        if [[ -n $modified_modules ]]; then
-          echo "::set-output name=modified::true"
-        else 
+        if [[ -z $modified_modules ]]; then
           echo "::set-output name=modified::false"
+        else 
+          echo "::set-output name=modified::true"
         fi

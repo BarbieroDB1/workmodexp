@@ -9,6 +9,7 @@ import (
 type CustomContracts struct {
 	Name      string
 	ID        uuid.UUID
+	ID2       uuid.UUID
 	CreatedAt time.Time
 }
 
