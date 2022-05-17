@@ -23,6 +23,9 @@ jobs:
         id: modified
         with:
           modules: ${{ steps.folders.outputs.modules }}
+      - name: modified modules
+        env: { MODULES_OUTPUT: "${{ toJson(steps.modified.outputs) }}" }
+        run: "echo $MODULES_OUTPUT"
       - uses: ./.github/actions/tag-versions/get-current-versions
         if: ${{ steps.modified.outputs.modified }}
         name: get current versions
