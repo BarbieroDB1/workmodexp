@@ -40,5 +40,4 @@ runs:
         else 
           echo "::set-output name=modified::${{ toJSON(true) }}"
         fi
-        # we dont want the above expression to alter the return value
-        exit 0
+        echo ""
