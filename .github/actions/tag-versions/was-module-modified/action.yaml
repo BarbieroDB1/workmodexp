@@ -19,9 +19,9 @@ runs:
       run: |
         m=( ${{ inputs.modules }} )
         
-        #base=$(jq -r .before ${GITHUB_EVENT_PATH})
-        #head=$(jq -r .after ${GITHUB_EVENT_PATH})
-        #folders=(`git diff --name-only ${base}...${head} | rev | cut -d/ -f2- | rev | sort -u `)
+        base=$(jq -r .before ${GITHUB_EVENT_PATH})
+        head=$(jq -r .after ${GITHUB_EVENT_PATH})
+        folders=(`git diff --name-only ${base}...${head} | rev | cut -d/ -f2- | rev | sort -u `)
         
         modified_modules=()
         for mod in ${m[@]}
