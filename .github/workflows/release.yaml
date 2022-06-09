@@ -101,9 +101,19 @@ jobs:
           echo "matrix ${{ toJSON(matrix) }}"
           echo ${{ matrix.module }}
           echo ${{ matrix.version }}
+      - uses: actions/checkout@v3
+        name: checkout
       - uses: actions/setup-go@v3
         with:
           go-version: 1.18
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
       - name: build_changed
         env:
           GOAMD64: v3
