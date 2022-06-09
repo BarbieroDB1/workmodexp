@@ -40,10 +40,8 @@ jobs:
       - name: Run Test
         if: ${{ steps.modified.outputs.modified }}
         shell: bash
-        with:
-          modules: ${{ steps.modified.outputs.modules }}
         run: |
-          m=( ${{ inputs.modules }} )
+          m=( ${{ steps.modified.outputs.modules }} )
           printf "%s\n" ${m[@]} | xargs -I{} go test ./{}/...
       - uses: ./.github/actions/tag-versions/get-current-versions
         if: ${{ steps.modified.outputs.modified }}
