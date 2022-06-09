@@ -5,11 +5,6 @@ on:
       - main
     paths:
       - custom-contracts/**
-  workflow_run:
-    workflows:
-      - Run Tests
-    types:
-      - completed
 jobs:
   build:
     if: ${{ github.event_name == 'push' || github.event.workflow_run.conclusion == 'success' }}
@@ -23,6 +18,17 @@ jobs:
         with:
           # non-shallow, because we want tag information
           fetch-depth: 0
+      - uses: actions/setup-go@v3
+        with:
+          go-version: 1.18
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
       - uses: ./.github/actions/tag-versions/compute-modules
         name: get modules
         id: folders
@@ -34,6 +40,14 @@ jobs:
       - name: modified modules
         env: { MODULES_OUTPUT: "${{ toJson(steps.modified.outputs) }}" }
         run: "echo $MODULES_OUTPUT"
+      - name: Run Test
+        if: ${{ steps.modified.outputs.modified }}
+        shell: bash
+        with:
+          modules: ${{ steps.modified.outputs.modules }}
+        run: |
+          m=( ${{ inputs.modules }} )
+          printf "%s\n" ${m[@]} | xargs -I{} go test ./{}/...
       - uses: ./.github/actions/tag-versions/get-current-versions
         if: ${{ steps.modified.outputs.modified }}
         name: get current versions

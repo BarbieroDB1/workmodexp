@@ -12,5 +12,5 @@ func TestAdd(t *testing.T) {
 }
 
 func result() int {
-	return 4
+	return 5
 }
