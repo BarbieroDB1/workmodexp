@@ -36,7 +36,7 @@ runs:
         
         echo "::set-output name=modules::${modified_modules[@]}"
         if [[ -z $modified_modules ]]; then
-          echo "::set-output name=modified::${{ false }}"
+          echo "::set-output name=modified::${{ toJSON(false) }}"
         else 
-          echo "::set-output name=modified::${{ true }}"
+          echo "::set-output name=modified::${{ toJSON(true) }}"
         fi

@@ -38,25 +38,25 @@ jobs:
         env: { MODULES_OUTPUT: "${{ toJson(steps.modified.outputs) }}" }
         run: "echo $MODULES_OUTPUT"
       - name: Run Test
-        if: ${{ steps.modified.outputs.modified }}
+        if: ${{ fromJSON(steps.modified.outputs.modified) }}
         shell: bash
         run: |
           m=( ${{ steps.modified.outputs.modules }} )
           printf "%s\n" ${m[@]} | xargs -I{} go test ./{}/...
       - uses: ./.github/actions/tag-versions/get-current-versions
-        if: ${{ steps.modified.outputs.modified }}
+        if: ${{ fromJSON(steps.modified.outputs.modified) }}
         name: get current versions
         id: versions
         with:
           modules: ${{ steps.modified.outputs.modules }}
       - uses: ./.github/actions/tag-versions/upgrade-module-versions
-        if: ${{ steps.modified.outputs.modified }}
+        if: ${{ fromJSON(steps.modified.outputs.modified) }}
         name: upgrade versions
         id: upg-versions
         with:
           jsonTag: ${{ steps.versions.outputs.jsonTag }}
       - uses: ./.github/actions/tag-versions/tag-and-push-versions
-        if: ${{ steps.modified.outputs.modified }}
+        if: ${{ fromJSON(steps.modified.outputs.modified) }}
         name: tag and push versions
         id: tag-n-push
         with:
