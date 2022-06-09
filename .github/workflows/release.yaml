@@ -3,11 +3,8 @@ on:
   push:
     branches:
       - main
-    paths:
-      - custom-contracts/**
 jobs:
   build:
-    if: ${{ github.event_name == 'push' || github.event.workflow_run.conclusion == 'success' }}
     permissions:
       contents: write
     runs-on: ubuntu-latest
