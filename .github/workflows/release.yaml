@@ -92,7 +92,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [test-n-tag]
     strategy:
-      matrix: ${{ needs.test-n-tag.outputs.newTags }}
+      matrix: ${{ fromJson(needs.test-n-tag.outputs.newTags) }}
     steps:
       - name: "debug"
         shell: bash
