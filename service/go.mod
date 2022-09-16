@@ -1,8 +1,9 @@
 module github.com/barbierodb1/workmodexp/service
 
-go 1.18
+go 1.19
 
 require (
+	github.com/barbierodb1/workmodexp/proto v0.0.5
 	github.com/google/uuid v1.3.0
 	google.golang.org/grpc v1.46.0
 	google.golang.org/protobuf v1.28.0

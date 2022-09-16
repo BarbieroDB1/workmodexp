@@ -1,8 +1,9 @@
 module github.com/barbierodb1/workmodexp/client
 
-go 1.18
+go 1.19
 
 require (
+	github.com/barbierodb1/workmodexp/proto v0.0.5
 	google.golang.org/grpc v1.46.0
 )
 

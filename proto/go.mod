@@ -1,6 +1,6 @@
 module github.com/barbierodb1/workmodexp/proto
 
-go 1.18
+go 1.19
 
 require (
 	google.golang.org/grpc v1.46.0
