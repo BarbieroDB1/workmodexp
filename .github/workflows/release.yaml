@@ -119,4 +119,6 @@ jobs:
           GOAMD64: v3
         shell: bash
         run: |
-          go build ./${{ matrix.module }}
+          mkdir -p bin
+          go build -o ./bin/${{ matrix.module }} ./${{ matrix.module }}
+          rm -rf bin
