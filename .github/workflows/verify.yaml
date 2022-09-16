@@ -2,9 +2,7 @@ name: PR Check
 on:
   pull_request:
     branches:
-      - "feature/**"
-      - "fix/**"
-      - "hotfix/**"
+      - main
 jobs:
   filter:
     outputs:
