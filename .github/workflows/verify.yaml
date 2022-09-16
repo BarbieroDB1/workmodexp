@@ -1,0 +1,58 @@
+name: PR Check
+on:
+  pull_request:
+    branches:
+      - "feature/**"
+      - "fix/**"
+      - "hotfix/**"
+jobs:
+  filter:
+    outputs:
+      sdks: ${{ steps.changed-sdk.output.changes }}
+      services: ${{ steps.changed-services.output.changes }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        name: checkout
+      - uses: ./.github/actions/tag-versions/compute-modules
+        name: get modules
+        id: folders
+      - name: make filter string
+        id: filterstring
+        shell: bash
+        # JSON is valid yaml
+        # So we print a JSON-version of the filters for dorny/path-filters, inline
+        run: |
+          IFS=$' '
+          mods=($(go work edit -json | jq -r '.Use[].DiskPath' | sed "s;./;;"))
+          unset IFS
+          
+          sdks=()
+          services=()
+          
+          for mod in ${mods[@]}; do
+            case "$mod" in
+            "deep/"*)
+              sdks+=($mod)
+              ;;
+            "custom-contracts") ;;
+            *)
+              services+=($mod)
+              ;;
+            esac
+          done
+          
+          sdk_filter=$(echo -n ${sdks[@]} | jq -Rcs '( ./" "-[""] ) | map( { (.): [.+"**/*.go", .+"**/*.mod"]} ) | add')
+          service_filter=$(echo -n ${services[@]} | jq -Rcs '( ./" "-[""] ) | map( { (.): [.+"**/*.go", .+"**/*.mod"]} ) | add')
+          echo "::set-output name=sdks::$sdk_filter"
+          echo "::set-output name=services::$service_filter"
+      - uses: dorny/paths-filter@v2
+        if: ${{ steps.filterstring.outputs.sdk_filter != 'null' }}
+        id: changed-sdk
+        with:
+          filters: ${{ steps.filterstring.outputs.sdk_filter }}
+      - uses: dorny/paths-filter@v2
+        if: ${{ steps.filterstring.outputs.services != 'null' }}
+        id: changed-services
+        with:
+          filters: ${{ steps.filterstring.outputs.services }}
