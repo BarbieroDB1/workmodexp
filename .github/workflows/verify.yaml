@@ -10,8 +10,6 @@ jobs:
       services: ${{ steps.changed-services.output.changes }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-        name: checkout
       - uses: ./.github/actions/tag-versions/compute-modules
         name: get modules
         id: folders
