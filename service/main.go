@@ -68,6 +68,7 @@ func (t *todoService) Get(ctx context.Context, todo *proto.Todo) (*proto.Todo, e
 }
 
 func main() {
+	log.Println("initializing service")
 	lis, err := net.Listen("tcp", "localhost:55051")
 	if err != nil {
 		log.Fatal(err)
