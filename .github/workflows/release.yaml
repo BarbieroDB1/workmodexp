@@ -78,16 +78,10 @@ jobs:
     runs-on: ubuntu-latest
     needs: [test-n-tag]
     steps:
-      - name: Install json2yaml
-        run: |
-          npm install -g json2yaml
-
       - name: Check matrix definition
         run: |
           matrix='${{ needs.test-n-tag.outputs.newTags }}'
           echo $matrix
-          echo $matrix | jq .
-          echo $matrix | json2yaml
           exit 0
   build-new-binaries:
     runs-on: ubuntu-latest
