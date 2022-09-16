@@ -45,10 +45,10 @@ jobs:
           echo "::set-output name=sdks::$sdk_filter"
           echo "::set-output name=services::$service_filter"
       - uses: dorny/paths-filter@v2
-        if: ${{ steps.filterstring.outputs.sdk_filter != 'null' }}
+        if: ${{ steps.filterstring.outputs.sdks != 'null' }}
         id: changed-sdk
         with:
-          filters: ${{ steps.filterstring.outputs.sdk_filter }}
+          filters: ${{ steps.filterstring.outputs.sdks }}
       - uses: dorny/paths-filter@v2
         if: ${{ steps.filterstring.outputs.services != 'null' }}
         id: changed-services
